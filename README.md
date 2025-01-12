@@ -1,6 +1,4 @@
 # Progetto Reti Logiche 2023/2024
-Score 30L/30
-
 The project was developed using Xilinx Vivado.
 
 The digital timing diagram inside the report that explains the functioning of the program was made with WaveDrom (https://gburghoorn.com/wavedrom/#) and then edited, while all other graphical representations were made with Drawio (https://app.diagrams.net).
