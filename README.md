@@ -1,5 +1,5 @@
 # Progetto Reti Logiche 2023/2024
-Score x/30
+Score 30L/30
 
 The project was developed using Xilinx Vivado.
 
