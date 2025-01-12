@@ -1,0 +1,50 @@
+it's strongly recommended to not generate latches, unless you are knowledgeable about the subject and purposefully want them for your design
+it's recommended to not initialize the signals with values, instead set their values inside a process (otherwise it might generate latches, which is not recommended)
+stored_value <= "0000000000000000"; is the same as writing stored_value <= (others => '0');
+Online resources say that using expressions like x <= x+1 (x at both sides of the expression) when in a combinatorial process can generate latches (I haven't verified this though)
+
+The values of outgoing signals (that is to say of type out) are propagated from one component to the next one with each clock cycle (if they aren't purely combinatorial). Consider some components connected in the following way:
+
+
+                    signal x
+|COMPONENT_A|----------------------->|COMPONENT_B|----------------------->|COMPONENT_C|
+
+
+Any variation of the signal x is perceived by COMPONENT_C only with a delay of 2 clock cycles: in the first clock cycle, the new value of x propagates from COMPONENT_A to COMPONENT_B, in the second one from COMPONENT_B to COMPONENT_C
+
+a sequential process depends on the clock (and usually on the reset too), it has memory, it's not combinatorial (in this project, the module acts only during the rising edge of the clock (it is synchronous with respect to the clock) and when reset is high, regardless of the clock (the module is asynchronous with respect to the reset))
+
+a combinatorial process is not sequential, it doesn't have memory nor states
+within a single combinatorial process, a signal cannot be assigned a value twice (or more) because sequentiality doesn't exist, the only way this can be done is to assign default values which are then changed inside conditional statements (all within a single process)
+when a process is combinatorial, it's recommended to specify a default value for each outgoing signal (that is to say of type out) (if one isn't explicitly assigned a value, a latch might be generated, which isn't recommended)
+it's recommended to first write the entire process leaving its sensitivity list empty, then write in the sensitivity list only the signals that are read (that is to say their value is used in some way)
+EXAMPLE OF COMBINATORIAL PROCESS (o_z0, o_z1, o_z2, o_z3 are outgoing signals):
+
+process (enable, sel, input) <-- sensitivity list
+begin
+    o_z0 <= (others => '0');
+    o_z1 <= (others => '0');
+    o_z2 <= (others => '0');
+    o_z3 <= (others => '0');
+    
+    if enable = '1' then
+        case sel is <-- a series of if-else can achieve this too
+            when "00" => o_z0 <= input;
+            when "01" => o_z1 <= input;
+            when "10" => o_z2 <= input;
+            when "11" => o_z3 <= input;
+        end case;
+    end if;
+end process;
+
+Every signal should only be handled/modified by a single process, you can "group" signals into a single process within a component using this concept
+Creating a signal is like creating a register, so once its value is set it will keep providing that value for all future clock cycles
+If a register sets a signal to be 0 and another sets it to be 1, they will collide, even if they set it at different moments/one of them is 'disabled' (they can't be truly disabled, at most their processes can be stopped through enable-disable signals but they will keep providing the value that they have memorized) (indicated in the oscilloscope inside vivado with an X or the color red) (unlike software, doing something like x<=0 followed later on by x<=1 won't ultimately set x to 1, it will make the value of x unknown, as both registers collide as they keep trying to set x to their respective values)
+If a register does not explicitly set a value for a signal while another one does (or doesn't, it doesn't change the outcome), it'll continuosly provide whatever random value it contains, so it may or may not collide (indicated in the oscilloscope inside vivado with a U or the color orange)
+The lesson "Uso di Vivado ed esempio di progetto" present in WeBeep for the course Reti Logiche (2023-2024) by Fabio Salice is quite useful to watch
+every signal should only be handled by a single process
+check all the comments after the project is finished
+for each component, check that they only import libraries that they need (for example ieee.numeric isn't always needed)
+check if all signals are synchronous with the i_clk (in this project with its rising edge), only i_rst is asynchronous in this project (controllerFSM does change when its current state changes, but that also only changes when the clock rises, so it's still synchronous with respect to the clock)
+check formatting after the project is finished
+report_utilization (in tcl, for latch control) and report_timing (slack met, for clock constraint?) should be present in the report

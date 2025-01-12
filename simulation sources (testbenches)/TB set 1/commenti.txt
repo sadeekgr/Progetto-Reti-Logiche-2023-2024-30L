@@ -1,0 +1,20 @@
+I testbench che contengono gli esempi proposti nella consegna del progetto (nominati come "tb1.vhd", "tb2.vhd"...). 
+Alcuni testbench più particolari che testano comportamenti non consueti dei segnali di START e RESET. 
+Un generatore di testbench in python (citato nella relazione)
+
+Riguardo il generatore, richiede la presenza della libreria "click", usata per facilitare la lettura dei parametri da linea di comando. Si esegue con: python3 generator.py [--amount <numero>] [--name <nome>]
+
+dove amount si riferisce alla quantità di test generati, mentre name è il prefisso dei nomi dei file .vhd generati. Il nome dei file sarà il prefisso concatenato con un numero incrementale, da 0
+
+Per esempio:
+con amount=3 e name="tb"
+I file generati saranno: tb0.vhd, tb1.vhd, tb2.vhd.
+
+I test bench generati sono simili ai casi di test dati nella specifica. I test generati non presentano casi speciali come rielaborazioni o segnali di reset, ma solamente una generazione casuale dei valori:
+    - di K, da 1 a 100
+    - dell'indirizzo ADD
+     - dei K valori di W presenti in RAM, i quali dovrebbero essere per la maggior parte zeri. 
+
+Viene anche riempito di conseguenza il vettore scenario_full, con i corretti valori di confidenza e W
+
+P.S. Generando un buon numero di test aumenta la probabilità che si presentino i due casi limiti: l'inizio della RAM con una serie di zeri e una quantità di zeri di fila pari ad annullare la confidenza.
